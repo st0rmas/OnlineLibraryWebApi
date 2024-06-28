@@ -22,19 +22,19 @@ public class BookService : IBookService
 		QueryPaginationBookObject? queryPaginationBookObject)
 	{
 		var booksQuery = _db.Books.Include(book => book.Author).AsQueryable();
-		if (queryPaginationBookObject is not null)
-		{
-			Pagination(ref booksQuery, queryPaginationBookObject);
-		}
-
 		if (queryFilteringBookObject is not null)
 		{
-			Filtering(ref booksQuery, queryFilteringBookObject);
+			Filtering(booksQuery, queryFilteringBookObject);
 		}
 
 		if (querySortingBookObject is not null)
 		{
-			Sorting(ref booksQuery, querySortingBookObject);
+			Sorting(booksQuery, querySortingBookObject);
+		}
+
+		if (queryPaginationBookObject is not null)
+		{
+			Pagination(booksQuery, queryPaginationBookObject);
 		}
 
 		var books = await booksQuery.ToListAsync();
@@ -105,7 +105,7 @@ public class BookService : IBookService
 		return await _db.Books.Where(book => book.AuthorId == id).ToListAsync();
 	}
 
-	private void Pagination(ref IQueryable<Book> booksQuery, QueryPaginationBookObject queryPaginationBookObject)
+	private void Pagination(IQueryable<Book> booksQuery, QueryPaginationBookObject queryPaginationBookObject)
 	{
 		if (queryPaginationBookObject.PageSize > 0 && queryPaginationBookObject.Page > 0)
 		{
@@ -114,7 +114,7 @@ public class BookService : IBookService
 		}
 	}
 
-	private void Filtering(ref IQueryable<Book> booksQuery, QueryFilteringBookObject queryFilteringBookObject)
+	private void Filtering(IQueryable<Book> booksQuery, QueryFilteringBookObject queryFilteringBookObject)
 	{
 		if (!string.IsNullOrEmpty(queryFilteringBookObject.AuthorName))
 		{
@@ -128,7 +128,7 @@ public class BookService : IBookService
 		}
 	}
 
-	private void Sorting(ref IQueryable<Book> booksQuery, QuerySortingBookObject querySortingBookObject)
+	private void Sorting(IQueryable<Book> booksQuery, QuerySortingBookObject querySortingBookObject)
 	{
 		string sortBy = querySortingBookObject.SortBy.ToLower();
 		bool isDescending = querySortingBookObject.IsDescending;
